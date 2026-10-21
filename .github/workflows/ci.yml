@@ -1,5 +1,6 @@
 name: MIDI interoperability checks
 on:
+  workflow_dispatch:
   push:
   pull_request:
 permissions:
