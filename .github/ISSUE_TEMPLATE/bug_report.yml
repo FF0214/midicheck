@@ -1,0 +1,30 @@
+name: MIDI compatibility or bug report
+description: Report a reproducible inspection, repair, or interface problem.
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: MIDI Check version, OS/browser or Node, and DAW/version if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Steps and a synthetic or redistributable MIDI. Do not include unpublished songs, secrets or private paths.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: checkboxes
+    id: permissions
+    attributes:
+      label: Fixture permission
+      options:
+        - label: Any attached files are synthetic or I have permission to redistribute them publicly.
+          required: true

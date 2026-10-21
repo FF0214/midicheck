@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="MIDI Check: inspect MIDI locally, understand every finding, preview repairs, and export a separate copy. No upload or account required.">
+  <meta name="theme-color" content="#101015">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; worker-src 'self'; media-src blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="stylesheet" href="./style.css">
+  <title>MIDI Check — MIDI 体检</title>
+</head>
+<body>
+  <a class="skip" href="#workspace">跳到检查结果 / Skip to findings</a>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a href="./" class="brand" aria-label="MIDI Check home"><span class="brand-icon"><i></i><i></i><i></i><i></i></span><strong>MIDI<span>Check</span></strong><span class="version">v0.1</span></a>
+    <nav aria-label="Main navigation"><a id="source-link" href="https://github.com/FF0214/midicheck" target="_blank" rel="noopener">GitHub ↗</a><button id="language" class="plain" type="button" aria-label="Switch language">EN</button><span class="privacy"><span></span><b data-i18n="local">本地处理</b></span></nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="eyebrow"><span></span> A SECOND PAIR OF EARS, FOR YOUR MIDI</div>
+      <h1 data-i18n="title">音符之间，<br><span>看清每一个细节。</span></h1>
+      <p class="intro" data-i18n="intro">把 MIDI 拖进来，找出藏在音符背后的问题。<br>先看清楚，再决定改什么。</p>
+      <div class="hero-notes" aria-hidden="true"><span class="ruler">C5 ──────── C4 ──────── C3</span><div class="note n1"></div><div class="note n2"></div><div class="note n3"></div><div class="note n4"></div><div class="note n5"></div><div class="note n6"></div><div class="note n7"></div><div class="note n8"></div><div class="note n9"></div><span class="playhead"></span><div class="note-tag">same pitch / two voices</div></div>
+    </section>
+    <section class="upload-panel" aria-label="Import MIDI">
+      <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="选择或拖入 MIDI 文件 / Select MIDI files">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 21V5m0 0-6 6m6-6 6 6M6 21v5h20v-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div><strong data-i18n="drop">拖入 MIDI 文件，开始检查</strong><span data-i18n="formats">或点击选择 · .mid / .midi · 每个文件最大 20 MiB</span></div><span class="upload-plus">＋</span>
+      </div>
+      <input id="file-input" type="file" accept=".mid,.midi,audio/midi,audio/x-midi" multiple hidden>
+      <div class="try-row"><span data-i18n="no-file">手边没有 MIDI？</span><button id="demo" class="text-button" type="button" data-i18n="try-demo">试试内置示例 ↗</button><span class="local-note" data-i18n="upload-note">文件留在你的浏览器，不上传服务器</span></div>
+    </section>
+    <p id="status" role="status" aria-live="polite" class="status"></p>
+    <section id="workspace" class="workspace" hidden>
+      <aside class="files-panel glass"><div class="section-label"><span data-i18n="files">文件队列</span><span id="file-count">0</span></div><div id="file-list"></div><div class="sidebar-note" data-i18n="sidebar-note">逐个查看文件。修复只会导出新副本，原文件保留。</div></aside>
+      <div class="results">
+        <div class="file-heading"><div><div class="eyebrow" data-i18n="inspection">MIDI INSPECTION</div><h2 id="filename"></h2></div><button id="json" class="button secondary" type="button" data-i18n="export-report">导出报告 ↓</button></div>
+        <div id="metrics" class="metrics"></div>
+        <div class="roll-panel glass"><div class="roll-toolbar"><div><span class="section-label" data-i18n="piano-roll">音符概览</span><span class="hint" data-i18n="roll-hint">高亮显示需要关注的音符</span></div><select id="track-select" aria-label="选择轨道 / Choose track"></select></div><canvas id="roll" height="210" aria-label="MIDI piano-roll visualization"></canvas><div class="roll-legend"><span><i class="dot clean"></i><b data-i18n="notes">音符</b></span><span><i class="dot warning"></i><b data-i18n="findings">待检查</b></span><span id="roll-count"></span></div></div>
+        <div class="findings-header"><h3><span data-i18n="findings-title">需要关注的细节</span><span id="issue-count" class="count-badge"></span></h3><div class="filter-row"><button type="button" class="chip active" data-filter="all" data-i18n="all">全部</button><button type="button" class="chip" data-filter="fixable" data-i18n="fixable">可选修复</button><button type="button" class="chip" data-filter="manual" data-i18n="review">人工判断</button></div></div>
+        <div id="issue-list" class="issue-list"></div><button id="more" class="text-button" type="button" hidden data-i18n="more">显示更多</button>
+        <div id="repair-bar" class="repair-bar glass"><div><strong id="selected-label"></strong><p data-i18n="repair-note">仅处理明确选中的事件；音乐表达由你判断。</p></div><button id="preview" class="button primary" type="button" disabled data-i18n="preview">预览修复 →</button></div>
+        <section id="comparison" class="comparison glass" hidden><div class="section-label" data-i18n="comparison">修复前后对比</div><div id="compare-metrics"></div><p id="compare-detail"></p><button id="download" class="button primary" type="button" data-i18n="download">下载修复副本 ↓</button><button id="cancel" class="button secondary" type="button" data-i18n="cancel">收起预览</button></section>
+      </div>
+    </section>
+    <section id="features" class="features"><article><span class="feature-no">01 / INSPECT</span><h3 data-i18n="feature1">看见细节</h3><p data-i18n="feature1p">重复音符、同音重叠、缺少结束事件、踏板状态。每个提示都有位置和解释。</p></article><article><span class="feature-no">02 / UNDERSTAND</span><h3 data-i18n="feature2">保留你的判断</h3><p data-i18n="feature2p">连奏和重叠可能是刻意的。提示需要你确认，不会自动把音乐表达当成错误。</p></article><article><span class="feature-no">03 / KEEP CONTROL</span><h3 data-i18n="feature3">改动清楚可见</h3><p data-i18n="feature3p">修复前先对比，导出独立副本。速度、歌词、控制器和其他事件按原始时间保留。</p></article></section>
+    <details class="limitations"><summary data-i18n="limits-title">支持范围与检查方式</summary><p data-i18n="limits">支持 MIDI 1.0 的 SMF 0/1 文件，包括 PPQ 和 SMPTE 时间。暂不支持 SMF 2、RIFF/RMID、UMP。音符按轨道、端口、通道和音高，以先进先出方式配对；重叠时原始意图可能无法唯一还原。跨轨共用通道、控制器与重叠存在歧义时，不提供音符自动修复。MIDI 文本按 UTF-8 尝试显示，旧编码的字样可能不正确，原始字节会保留。</p></details>
+  </main>
+  <footer><span>MIDI Check <b>·</b> <span data-i18n="footer">让每一次交付，清楚一点。</span></span><span>Open source · MIT <b>·</b> <span data-i18n="no-tracking">无追踪 · 无账号 · 无上传</span></span></footer>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
