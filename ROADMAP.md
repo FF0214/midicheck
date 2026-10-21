@@ -2,10 +2,12 @@
 
 ## Initial release gate
 
-- [ ] Automated regression and independent-parser checks pass on supported Node versions.
-- [ ] Browser import, preview, download and report export verified.
-- [ ] Mobile layout and keyboard operation checked.
-- [ ] Publish source and installation instructions.
+- [x] Automated regression and independent-parser checks pass on supported Node versions.
+- [x] Browser import, preview, download and report export verified.
+- [x] Mobile layout and keyboard activation checked.
+- [x] Publish source and installation instructions.
+
+Verification scope and evidence: [verification notes](docs/verification.md).
 
 ## Evidence-led improvements
 

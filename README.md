@@ -4,6 +4,8 @@
 
 [简体中文](docs/README.zh-CN.md) · [Checks and limitations](docs/diagnostics.md) · [Contributing](CONTRIBUTING.md)
 
+**[Open the web app](https://ff0214.github.io/midicheck/)** — no installation or account. Choose **Explore the demo** or open your own MIDI file.
+
 ## What it does
 
 - Open multiple `.mid` / `.midi` files, inspect them in a queue, and visualize notes on a piano roll.
@@ -74,6 +76,8 @@ npm run build
 ```
 
 The sole development dependency is [`midi-file`](https://github.com/carter-thaxton/midi-file), used as an independent parser in interoperability tests. It is not shipped with the browser app. Tests cover hand-encoded SMF fixtures, malformed inputs, note-pairing ambiguity, metadata retention, tempo maps, SMPTE, bounded dense inputs and CLI overwrite protection.
+
+See [verification notes](docs/verification.md) for the tested environments, browser checks and remaining interoperability work.
 
 This project was developed with AI assistance. Automated tests do not establish compatibility with every DAW or validate a composition's musical quality. Reproducible, minimal bug reports are particularly welcome.
 

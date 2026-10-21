@@ -28,6 +28,8 @@ let entries = [], current = null, report = null, previewResult = null, busy = fa
 const selected = new Set(), pending = new Map();
 const worker = new Worker(new URL('./worker.mjs', import.meta.url), { type: 'module' });
 const t = (zh, english) => language === 'zh' ? zh : english;
+const displayTrackName = name => name.length > 100 ? name.slice(0, 100) + '…' : name;
+const repairedFilename = name => name.replace(/\.(mid|midi)$/i, '') + '.checked.mid';
 worker.onmessage = ({ data }) => {
   const promise = pending.get(data.job);
   if (!promise) return;
@@ -113,7 +115,7 @@ function renderReport(resetTrack = true) {
   $('metrics').replaceChildren(metric(report.notes.length.toLocaleString(), t('音符', 'NOTES')), metric(report.tracks.length, t('轨道', 'TRACKS')), metric(`${report.duration.toFixed(2)}s`, t('时长估算', 'EST. DURATION')), metric(report.issues.length, t('检查提示', 'FINDINGS'), report.issues.length > 0));
   const previous = $('track-select').value;
   $('track-select').replaceChildren(new Option(t('所有轨道', 'All tracks'), 'all'));
-  for (const track of report.tracks) $('track-select').add(new Option(`${track.index + 1} · ${track.name || t('未命名轨道', 'Untitled')}`, String(track.index)));
+  for (const track of report.tracks) $('track-select').add(new Option(`${track.index + 1} · ${displayTrackName(track.name) || t('未命名轨道', 'Untitled')}`, String(track.index)));
   if (!resetTrack && [...$('track-select').options].some(o => o.value === previous)) $('track-select').value = previous;
   $('issue-count').textContent = report.issues.length;
   renderIssues(); drawRoll(); updateSelection();
@@ -136,7 +138,7 @@ function renderIssues() {
       check.addEventListener('change', () => { if (check.checked) selected.add(issue.id); else selected.delete(issue.id); previewResult = null; $('comparison').hidden = true; updateSelection(); }); row.append(check);
     } else row.append(element('span', issue.severity === 'info' ? 'i' : '·', 'issue-icon'));
     const body = element('div', ''); body.append(element('h4', m[language === 'zh' ? 0 : 1]), element('p', m[language === 'zh' ? 2 : 3]));
-    const trackName = report.tracks[issue.track].name;
+    const trackName = displayTrackName(report.tracks[issue.track].name);
     body.append(element('div', `${t('轨道', 'Track')} ${issue.track + 1}${trackName ? ` · ${trackName}` : ''} / tick ${issue.tick} / ${issue.seconds.toFixed(3)}s${issue.pitch === undefined ? '' : ` / ${noteName(issue.pitch)} (${issue.pitch})`}${issue.channel === undefined ? '' : ` / CH ${issue.channel + 1}`}`, 'position'));
     if (issue.blockedReason) body.append(element('p', t('该组存在路由、控制器或配对歧义，保留原事件。', 'Routing, controller or pairing ambiguity blocks this repair. Original events are preserved.')));
     row.append(body, element('span', issue.fixable ? t('可选修复', 'OPT-IN FIX') : t('人工判断', 'REVIEW'), `issue-badge${issue.fixable ? '' : ' manual'}`));
@@ -220,13 +222,13 @@ $('preview').addEventListener('click', async () => {
 });
 $('download').addEventListener('click', () => {
   if (busy || !previewResult || !current) return;
-  const name = current.name.replace(/\.(mid|midi)$/i, '') + '.checked.mid';
+  const name = repairedFilename(current.name);
   download(previewResult.bytes, name, 'audio/midi'); status(t(`已下载 ${name}。原文件未被修改。`, `Downloaded ${name}. Original unchanged.`));
 });
 $('cancel').addEventListener('click', () => { previewResult = null; $('comparison').hidden = true; });
 $('json').addEventListener('click', () => {
   if (busy || !report) return;
-  const output = { ...jsonReport(report, current.name), ...(previewResult ? { repairPreview: { applied: previewResult.applied, after: jsonReport(previewResult.report, current.name + '.checked.mid') } } : {}) };
+  const output = { ...jsonReport(report, current.name), ...(previewResult ? { repairPreview: { applied: previewResult.applied, after: jsonReport(previewResult.report, repairedFilename(current.name)) } } : {}) };
   download(JSON.stringify(output, null, 2), current.name.replace(/\.(mid|midi)$/i, '') + '.report.json', 'application/json');
 });
 setLanguage();
