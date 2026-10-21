@@ -10,6 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   publish:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
