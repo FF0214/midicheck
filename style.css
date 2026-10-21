@@ -1,1 +1,6 @@
 @import url('./tokens.css');
+
+body { overflow-x: clip; }
+.hero-notes { overflow: hidden; }
+.file-heading > div { min-width: 0; }
+.issue .position { overflow-wrap: anywhere; }
